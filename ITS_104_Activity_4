@@ -1,0 +1,71 @@
+using System;
+
+public struct Time
+{
+    private readonly int minutes;
+
+    public Time(int hh, int mm)
+    {
+
+        if (hh < 0 || hh > 23) throw new ArgumentException("Hours must be between 0 and 23");
+        if (mm < 0 || mm > 59) throw new ArgumentException("Minutes must be between 0 and 59");
+
+        this.minutes = 60 * hh + mm;
+    }
+
+
+    public int Hour => minutes / 60;
+
+    public int Minute => minutes % 60;
+
+    public override string ToString()
+    {
+        return String.Format("{0:D2}:{1:D2}", Hour, Minute);
+    }
+
+    public int TotalMinutes => minutes;
+}
+
+class TestTime
+{
+    static void Main(string[] args)
+    {
+
+        Time morning = new Time(8, 5);    
+        Time noon = new Time(12, 0);      
+        Time midnight = new Time(0, 0);  
+        Time evening = new Time(23, 45);  
+
+
+        Console.WriteLine("Morning time: " + morning);
+        Console.WriteLine("Noon time: " + noon);
+        Console.WriteLine("Midnight time: " + midnight);
+        Console.WriteLine("Evening time: " + evening);
+
+
+        Console.WriteLine("\nProperty access examples:");
+        Console.WriteLine($"Evening time - Hours: {evening.Hour}, Minutes: {evening.Minute}");
+        Console.WriteLine($"Morning time - Hours: {morning.Hour}, Minutes: {morning.Minute}");
+
+
+        Console.WriteLine("\nEnter your own time:");
+
+        try
+        {
+            Console.Write("Enter hours (0-23): ");
+            int hh = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter minutes (0-59): ");
+            int mm = int.Parse(Console.ReadLine());
+
+            Time userTime = new Time(hh, mm);
+            Console.WriteLine("\nYour time is: " + userTime);
+            Console.WriteLine($"Hours: {userTime.Hour}, Minutes: {userTime.Minute}");
+            Console.WriteLine("Total minutes since midnight: " + userTime.TotalMinutes);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
