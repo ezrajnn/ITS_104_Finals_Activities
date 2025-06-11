@@ -1,0 +1,99 @@
+using System;
+
+public struct Time
+{
+    private readonly int minutesSinceMidnight;
+
+    public Time(int hours, int minutes)
+    {
+        if (hours < 0 || hours > 23)
+            throw new ArgumentOutOfRangeException(nameof(hours), "Hours must be between 0 and 23");
+        if (minutes < 0 || minutes > 59)
+            throw new ArgumentOutOfRangeException(nameof(minutes), "Minutes must be between 0 and 59");
+
+        this.minutesSinceMidnight = 60 * hours + minutes;
+    }
+
+    public Time(int totalMinutes)
+    {
+        minutesSinceMidnight = totalMinutes % 1440;
+        if (minutesSinceMidnight < 0)
+            minutesSinceMidnight += 1440;
+    }
+
+    public int Hour => minutesSinceMidnight / 60;
+    public int Minute => minutesSinceMidnight % 60;
+
+    public static Time operator +(Time t1, Time t2) => new Time(t1.minutesSinceMidnight + t2.minutesSinceMidnight);
+    public static Time operator -(Time t1, Time t2) => new Time(t1.minutesSinceMidnight - t2.minutesSinceMidnight);
+
+    public override string ToString() => $"{Hour:D2}:{Minute:D2}";
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Time Calculator");
+        Console.WriteLine("---------------");
+
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("\nCreate First Time:");
+                Time time1 = GetTimeFromUser();
+
+                Console.WriteLine("\nCreate Second Time:");
+                Time time2 = GetTimeFromUser();
+
+                Console.WriteLine("\nChoose Operation:");
+                Console.WriteLine("1. Add Times");
+                Console.WriteLine("2. Subtract Times");
+                Console.WriteLine("3. Start Over");
+                Console.WriteLine("4. Exit");
+                Console.Write("Selection: ");
+
+                var choice = Console.ReadLine();
+
+                if (choice == "4") break;
+
+                switch (choice)
+                {
+                    case "1":
+                        Time sum = time1 + time2;
+                        Console.WriteLine($"\nResult: {time1} + {time2} = {sum}");
+                        break;
+                    case "2":
+                        Time diff = time1 - time2;
+                        Console.WriteLine($"\nResult: {time1} - {time2} = {diff}");
+                        break;
+                    case "3":
+                        continue;
+                    default:
+                        Console.WriteLine("Invalid choice, please try again.");
+                        break;
+                }
+
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine("Please try again.");
+            }
+        }
+    }
+
+    static Time GetTimeFromUser()
+    {
+        Console.Write("Enter hours (0-23): ");
+        int hours = int.Parse(Console.ReadLine());
+
+        Console.Write("Enter minutes (0-59): ");
+        int minutes = int.Parse(Console.ReadLine());
+
+        return new Time(hours, minutes);
+    }
+}
