@@ -1,0 +1,128 @@
+using System;
+
+public struct Time
+{
+    private readonly int minutesSinceMidnight;
+
+    public Time(int hours, int minutes)
+    {
+        if (hours < 0 || hours > 23)
+            throw new ArgumentOutOfRangeException(nameof(hours), "Hours must be 0-23");
+        if (minutes < 0 || minutes > 59)
+            throw new ArgumentOutOfRangeException(nameof(minutes), "Minutes must be 0-59");
+
+        this.minutesSinceMidnight = 60 * hours + minutes;
+    }
+
+    public Time(int totalMinutes)
+    {
+        minutesSinceMidnight = totalMinutes % 1440;
+        if (minutesSinceMidnight < 0)
+            minutesSinceMidnight += 1440;
+    }
+
+    public int Hour => minutesSinceMidnight / 60;
+    public int Minute => minutesSinceMidnight % 60;
+    public int MinutesUntilMidnight => (1440 - minutesSinceMidnight) % 1440;
+
+    public static implicit operator Time(int totalMinutes) => new Time(totalMinutes);
+    public static explicit operator int(Time time) => time.minutesSinceMidnight;
+
+    public static Time operator +(Time t1, Time t2) => new Time(t1.minutesSinceMidnight + t2.minutesSinceMidnight);
+    public static Time operator -(Time t1, Time t2) => new Time(t1.minutesSinceMidnight - t2.minutesSinceMidnight);
+
+    public override string ToString() => $"{Hour:D2}:{Minute:D2}";
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("TIME CALCULATOR WITH MIDNIGHT COUNTDOWN");
+        Console.WriteLine("======================================");
+
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("\nMAIN MENU");
+                Console.WriteLine("1. Show current time until midnight");
+                Console.WriteLine("2. Calculate time until midnight for custom time");
+                Console.WriteLine("3. Perform time operations");
+                Console.WriteLine("4. Exit");
+                Console.Write("Choose an option (1-4): ");
+
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        DateTime now = DateTime.Now;
+                        Time current = new Time(now.Hour, now.Minute);
+                        Console.WriteLine($"\nCurrent time: {current}");
+                        Console.WriteLine($"Minutes until midnight: {current.MinutesUntilMidnight}");
+                        Console.WriteLine($"That's {current.MinutesUntilMidnight / 60} hours and {current.MinutesUntilMidnight % 60} minutes");
+                        break;
+
+                    case "2":
+                        Time custom = GetTimeFromUser();
+                        Console.WriteLine($"\nFor time: {custom}");
+                        Console.WriteLine($"Minutes until midnight: {custom.MinutesUntilMidnight}");
+                        Console.WriteLine($"That's {custom.MinutesUntilMidnight / 60} hours and {custom.MinutesUntilMidnight % 60} minutes");
+                        break;
+
+                    case "3":
+                        PerformTimeOperations();
+                        break;
+
+                    case "4":
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid option!");
+                        break;
+                }
+
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+    }
+
+    static void PerformTimeOperations()
+    {
+        Console.WriteLine("\nEnter first time:");
+        Time t1 = GetTimeFromUser();
+
+        Console.WriteLine("\nEnter second time:");
+        Time t2 = GetTimeFromUser();
+
+        Console.WriteLine($"\n{t1} + {t2} = {t1 + t2}");
+        Console.WriteLine($"{t1} - {t2} = {t1 - t2}");
+        Console.WriteLine($"Minutes between {t1} and {t2}: {Math.Abs((int)(t1 - t2))}");
+    }
+
+    static Time GetTimeFromUser()
+    {
+        Console.WriteLine("\nChoose input method:");
+        Console.WriteLine("1. Enter hours and minutes");
+        Console.WriteLine("2. Enter minutes since midnight");
+        Console.Write("Option (1-2): ");
+
+        if (Console.ReadLine() == "1")
+        {
+            Console.Write("Hours (0-23): ");
+            int h = int.Parse(Console.ReadLine());
+            Console.Write("Minutes (0-59): ");
+            int m = int.Parse(Console.ReadLine());
+            return new Time(h, m);
+        }
+        else
+        {
+            Console.Write("Minutes since midnight: ");
+            return int.Parse(Console.ReadLine());
+        }
+    }
+}
